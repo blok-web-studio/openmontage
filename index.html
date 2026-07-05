@@ -1193,6 +1193,10 @@ section {
   .playhead, .playhead-dot {
     display: none;
   }
+
+  .film-rail, .floating-frames {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1261,6 +1265,361 @@ section {
    REDUCED MOTION
    ═══════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════
+   FILM STRIP RAIL — persistent left-side timeline
+   ═══════════════════════════════════════════════════════ */
+
+.film-rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 100dvh;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.35;
+  transition: opacity 0.5s var(--ease-mech);
+}
+
+.film-rail:hover {
+  opacity: 0.6;
+}
+
+.film-strip {
+  position: absolute;
+  left: 12px;
+  top: -100%;
+  width: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.05s linear;
+}
+
+.film-frame {
+  width: 24px;
+  height: 18px;
+  border: 1px solid var(--ash);
+  border-radius: 2px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.film-frame::before,
+.film-frame::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 3px;
+  background: var(--graphite);
+  border-radius: 1px;
+}
+
+.film-frame::before {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+}
+
+.film-frame::after {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+}
+
+.film-frame.active {
+  border-color: var(--signal);
+  background: rgba(238, 96, 24, 0.08);
+}
+
+.film-frame.active::before,
+.film-frame.active::after {
+  background: var(--signal);
+}
+
+/* Sprocket holes */
+.sprocket {
+  width: 6px;
+  height: 4px;
+  background: var(--canvas);
+  border: 1px solid var(--graphite);
+  border-radius: 1px;
+  margin: 1px auto;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FLOATING FRAMES — parallax particles
+   ═══════════════════════════════════════════════════════ */
+
+.floating-frames {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.float-frame {
+  position: absolute;
+  border: 1px solid rgba(61, 58, 57, 0.3);
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+
+.float-frame.visible {
+  opacity: 1;
+}
+
+.float-frame.ff-1 {
+  width: 60px;
+  height: 40px;
+  top: 15%;
+  right: 8%;
+  border-color: rgba(238, 96, 24, 0.15);
+}
+
+.float-frame.ff-2 {
+  width: 45px;
+  height: 30px;
+  top: 45%;
+  right: 4%;
+  border-color: rgba(160, 202, 146, 0.12);
+}
+
+.float-frame.ff-3 {
+  width: 80px;
+  height: 50px;
+  top: 70%;
+  right: 12%;
+  border-color: rgba(61, 58, 57, 0.25);
+}
+
+.float-frame.ff-4 {
+  width: 35px;
+  height: 25px;
+  top: 25%;
+  left: 60px;
+  border-color: rgba(238, 96, 24, 0.1);
+}
+
+.float-frame.ff-5 {
+  width: 55px;
+  height: 38px;
+  top: 80%;
+  left: 55px;
+  border-color: rgba(160, 202, 146, 0.08);
+}
+
+.float-frame.ff-6 {
+  width: 40px;
+  height: 28px;
+  top: 55%;
+  left: 65px;
+  border-color: rgba(61, 58, 57, 0.2);
+}
+
+/* Inner glow on frames */
+.float-frame::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.04;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL TEXT REVEALS — big text from sides
+   ═══════════════════════════════════════════════════════ */
+
+.scroll-reveal-left,
+.scroll-reveal-right {
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  will-change: transform, opacity;
+}
+
+.scroll-reveal-left {
+  transform: translateX(-60px);
+}
+
+.scroll-reveal-right {
+  transform: translateX(60px);
+}
+
+.scroll-reveal-left.visible,
+.scroll-reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MARQUEE — horizontal text strip
+   ═══════════════════════════════════════════════════════ */
+
+.marquee-wrap {
+  overflow: hidden;
+  padding: 20px 0;
+  border-top: 1px solid var(--ash);
+  border-bottom: 1px solid var(--ash);
+  position: relative;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+}
+
+.marquee-track span {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--graphite);
+  white-space: nowrap;
+  padding: 0 40px;
+}
+
+.marquee-track span .dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--signal);
+  margin: 0 16px;
+  vertical-align: middle;
+  opacity: 0.5;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION DIVIDER — animated line
+   ═══════════════════════════════════════════════════════ */
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--ash);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-divider::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--signal), transparent);
+  animation: divider-sweep 4s ease-in-out infinite;
+}
+
+@keyframes divider-sweep {
+  0% { left: -10%; }
+  100% { left: 110%; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PARALLAX DEPTH — sections move at different speeds
+   ═══════════════════════════════════════════════════════ */
+
+.parallax-slow {
+  will-change: transform;
+}
+
+.parallax-fast {
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════
+   COUNTER ANIMATION
+   ═══════════════════════════════════════════════════════ */
+
+.stat-value[data-count] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PIPELINE CARD HOVER GLOW
+   ═══════════════════════════════════════════════════════ */
+
+.pipeline-card {
+  overflow: hidden;
+}
+
+.pipeline-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(238, 96, 24, 0.04) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-mech);
+  pointer-events: none;
+}
+
+.pipeline-card:hover::after {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO FLOATING FRAMES — entrance animation
+   ═══════════════════════════════════════════════════════ */
+
+.hero-frame {
+  position: absolute;
+  border: 1px solid rgba(238, 96, 24, 0.12);
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  animation: hero-frame-in 1.2s var(--ease-out) forwards;
+}
+
+.hero-frame-1 {
+  width: 120px;
+  height: 80px;
+  top: 20%;
+  right: -40px;
+  animation-delay: 0.8s;
+}
+
+.hero-frame-2 {
+  width: 80px;
+  height: 55px;
+  bottom: 25%;
+  right: 5%;
+  animation-delay: 1.0s;
+  border-color: rgba(160, 202, 146, 0.1);
+}
+
+.hero-frame-3 {
+  width: 60px;
+  height: 42px;
+  top: 60%;
+  left: -20px;
+  animation-delay: 1.2s;
+  border-color: rgba(61, 58, 57, 0.2);
+}
+
+@keyframes hero-frame-in {
+  0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════ */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1268,13 +1627,17 @@ section {
     transition-duration: 0.01ms !important;
   }
 
-  .reveal {
+  .reveal, .scroll-reveal-left, .scroll-reveal-right {
     opacity: 1;
     transform: none;
   }
 
-  .playhead, .playhead-dot {
+  .playhead, .playhead-dot, .film-rail, .floating-frames {
     display: none;
+  }
+
+  .marquee-track {
+    animation: none;
   }
 }
 </style>
@@ -1284,6 +1647,21 @@ section {
 <!-- PLAYHEAD -->
 <div class="playhead" id="playhead"></div>
 <div class="playhead-dot" id="playhead-dot"></div>
+
+<!-- FILM STRIP RAIL — persistent left-side timeline -->
+<div class="film-rail" id="film-rail">
+  <div class="film-strip" id="film-strip"></div>
+</div>
+
+<!-- FLOATING FRAMES — parallax particles -->
+<div class="floating-frames" id="floating-frames">
+  <div class="float-frame ff-1"></div>
+  <div class="float-frame ff-2"></div>
+  <div class="float-frame ff-3"></div>
+  <div class="float-frame ff-4"></div>
+  <div class="float-frame ff-5"></div>
+  <div class="float-frame ff-6"></div>
+</div>
 
 <!-- NAV -->
 <nav class="nav">
@@ -1328,6 +1706,11 @@ section {
 <section class="hero" id="hero">
   <div class="hero-inner">
     <div class="hero-content">
+      <!-- Hero floating frames -->
+      <div class="hero-frame hero-frame-1"></div>
+      <div class="hero-frame hero-frame-2"></div>
+      <div class="hero-frame hero-frame-3"></div>
+
       <div class="hero-eyebrow">Open Source &middot; AGPL-3.0</div>
       <h1>Turn your AI assistant into a <em>video production studio</em></h1>
       <p class="hero-sub">12 pipelines. 52 tools. 500+ agent skills. Describe what you want in plain language — your agent handles research, scripting, asset generation, editing, and final composition.</p>
@@ -1378,25 +1761,34 @@ section {
 <div class="stats-bar">
   <div class="stats-inner">
     <div class="stat reveal">
-      <div class="stat-value">33.4k<span class="accent">+</span></div>
+      <div class="stat-value" data-count="33400" data-suffix="+">0</div>
       <div class="stat-label">GitHub Stars</div>
     </div>
     <div class="stat reveal reveal-delay-1">
-      <div class="stat-value">12</div>
+      <div class="stat-value" data-count="12">0</div>
       <div class="stat-label">Pipelines</div>
     </div>
     <div class="stat reveal reveal-delay-2">
-      <div class="stat-value">52</div>
+      <div class="stat-value" data-count="52">0</div>
       <div class="stat-label">Production Tools</div>
     </div>
     <div class="stat reveal reveal-delay-3">
-      <div class="stat-value">500<span class="accent">+</span></div>
+      <div class="stat-value" data-count="500" data-suffix="+">0</div>
       <div class="stat-label">Agent Skills</div>
     </div>
   </div>
 </div>
 
+<!-- MARQUEE — horizontal text strip -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Animated Explainer <span class="dot"></span> Animation <span class="dot"></span> Cinematic <span class="dot"></span> Documentary Montage <span class="dot"></span> Talking Head <span class="dot"></span> Clip Factory <span class="dot"></span> Hybrid <span class="dot"></span> Localization <span class="dot"></span> Podcast Repurpose <span class="dot"></span> Screen Demo <span class="dot"></span> Avatar <span class="dot"></span> Character Animation</span>
+    <span>Animated Explainer <span class="dot"></span> Animation <span class="dot"></span> Cinematic <span class="dot"></span> Documentary Montage <span class="dot"></span> Talking Head <span class="dot"></span> Clip Factory <span class="dot"></span> Hybrid <span class="dot"></span> Localization <span class="dot"></span> Podcast Repurpose <span class="dot"></span> Screen Demo <span class="dot"></span> Avatar <span class="dot"></span> Character Animation</span>
+  </div>
+</div>
+
 <!-- PIPELINES -->
+<div class="section-divider"></div>
 <section id="pipelines">
   <div class="section-inner">
     <div class="section-header reveal">
@@ -1476,7 +1868,7 @@ section {
   <div class="section-inner">
     <div class="section-header reveal">
       <div class="section-eyebrow">How It Works</div>
-      <h2 class="section-title">Your agent is the director.</h2>
+      <h2 class="section-title scroll-reveal-left">Your agent is the director.</h2>
       <p class="section-desc">No code orchestrator. Your AI coding assistant reads pipeline manifests, calls Python tools, self-reviews, and renders the final video. You stay in control at every creative decision.</p>
     </div>
     <div class="flow-steps">
@@ -1520,11 +1912,12 @@ section {
 </section>
 
 <!-- DEMOS -->
+<div class="section-divider"></div>
 <section id="demos">
   <div class="section-inner">
     <div class="section-header reveal">
       <div class="section-eyebrow">Watch It Happen</div>
-      <h2 class="section-title">Made with OpenMontage.</h2>
+      <h2 class="section-title scroll-reveal-right">Made with OpenMontage.</h2>
       <p class="section-desc">Every video includes the full prompt, pipeline, tools used, and cost so you can reproduce it yourself.</p>
     </div>
     <div class="demos-scroll">
@@ -1609,7 +2002,7 @@ section {
   <div class="section-inner">
     <div class="section-header reveal">
       <div class="section-eyebrow">Providers</div>
-      <h2 class="section-title">Use what you have.<br>Swap freely.</h2>
+      <h2 class="section-title scroll-reveal-left">Use what you have.<br>Swap freely.</h2>
       <p class="section-desc">Every capability supports open-source local alternatives alongside premium APIs. Zero vendor lock-in. The scored selector picks the best match automatically.</p>
     </div>
     <div class="providers-grid">
@@ -1654,11 +2047,12 @@ section {
 </section>
 
 <!-- QUICK START -->
+<div class="section-divider"></div>
 <section id="quickstart">
   <div class="section-inner">
     <div class="section-header reveal">
       <div class="section-eyebrow">Quick Start</div>
-      <h2 class="section-title">Up and running in 3 commands.</h2>
+      <h2 class="section-title scroll-reveal-right">Up and running in 3 commands.</h2>
       <p class="section-desc">Python 3.10+, FFmpeg, Node.js 18+, and an AI coding assistant. That's it.</p>
     </div>
     <div class="quickstart-terminal reveal" style="position: relative;">
@@ -1760,22 +2154,136 @@ section {
 
   var playhead = document.getElementById('playhead');
   var playheadDot = document.getElementById('playhead-dot');
+  var scrollY = 0;
+  var ticking = false;
 
   function updatePlayhead() {
-    var scrollTop = window.scrollY || document.documentElement.scrollTop;
     var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    var progress = docHeight > 0 ? scrollTop / docHeight : 0;
+    var progress = docHeight > 0 ? scrollY / docHeight : 0;
     var viewportH = window.innerHeight;
 
     playhead.style.height = (progress * viewportH) + 'px';
     playheadDot.style.top = (progress * viewportH - 5) + 'px';
   }
 
-  window.addEventListener('scroll', updatePlayhead, { passive: true });
-  updatePlayhead();
+  // ═══════════════════════════════════════════════════════
+  // FILM STRIP — generate frames, move with scroll
+  // ═══════════════════════════════════════════════════════
+
+  var filmStrip = document.getElementById('film-strip');
+  var filmFrames = [];
+  var FRAME_COUNT = 80;
+
+  // Generate film strip frames
+  for (var i = 0; i < FRAME_COUNT; i++) {
+    var sprocket = document.createElement('div');
+    sprocket.className = 'sprocket';
+    filmStrip.appendChild(sprocket);
+
+    var frame = document.createElement('div');
+    frame.className = 'film-frame';
+    filmStrip.appendChild(frame);
+    filmFrames.push(frame);
+  }
+
+  // Add trailing sprocket
+  var endSprocket = document.createElement('div');
+  endSprocket.className = 'sprocket';
+  filmStrip.appendChild(endSprocket);
+
+  function updateFilmStrip() {
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = docHeight > 0 ? scrollY / docHeight : 0;
+    var stripHeight = filmStrip.scrollHeight;
+    var railHeight = window.innerHeight;
+    var maxTranslate = stripHeight - railHeight;
+    var translateY = -progress * maxTranslate;
+
+    filmStrip.style.transform = 'translateY(' + translateY + 'px)';
+
+    // Highlight active frame based on scroll section
+    var sections = document.querySelectorAll('section[id]');
+    var currentSection = '';
+    sections.forEach(function(section) {
+      var rect = section.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.4) {
+        currentSection = section.id;
+      }
+    });
+
+    // Map sections to frame indices
+    var sectionMap = {
+      'hero': 0,
+      'pipelines': 20,
+      'how-it-works': 40,
+      'demos': 55,
+      'providers': 65,
+      'quickstart': 75
+    };
+
+    var activeIdx = sectionMap[currentSection] || 0;
+
+    filmFrames.forEach(function(f, idx) {
+      if (idx === activeIdx) {
+        f.classList.add('active');
+      } else {
+        f.classList.remove('active');
+      }
+    });
+  }
 
   // ═══════════════════════════════════════════════════════
-  // SCROLL REVEAL
+  // FLOATING FRAMES — parallax with scroll
+  // ═══════════════════════════════════════════════════════
+
+  var floatingFrames = document.querySelectorAll('.float-frame');
+  var floatVisible = false;
+
+  function updateFloatingFrames() {
+    var progress = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+
+    // Show frames after scrolling a bit
+    if (scrollY > 200 && !floatVisible) {
+      floatVisible = true;
+      floatingFrames.forEach(function(f) { f.classList.add('visible'); });
+    } else if (scrollY <= 200 && floatVisible) {
+      floatVisible = false;
+      floatingFrames.forEach(function(f) { f.classList.remove('visible'); });
+    }
+
+    // Parallax each frame at different speeds
+    floatingFrames.forEach(function(f, i) {
+      var speed = 0.1 + (i * 0.05);
+      var yOffset = scrollY * speed;
+      var xOffset = Math.sin(scrollY * 0.002 + i) * 15;
+      f.style.transform = 'translate(' + xOffset + 'px, ' + (-yOffset % 400) + 'px) rotate(' + (xOffset * 0.3) + 'deg)';
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SCROLL REVEAL — left/right text animations
+  // ═══════════════════════════════════════════════════════
+
+  var scrollReveals = document.querySelectorAll('.scroll-reveal-left, .scroll-reveal-right');
+
+  var scrollRevealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        scrollRevealObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.2,
+    rootMargin: '0px 0px -60px 0px'
+  });
+
+  scrollReveals.forEach(function(el) {
+    scrollRevealObserver.observe(el);
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // SCROLL REVEAL — standard elements
   // ═══════════════════════════════════════════════════════
 
   var reveals = document.querySelectorAll('.reveal');
@@ -1795,6 +2303,83 @@ section {
   reveals.forEach(function(el) {
     revealObserver.observe(el);
   });
+
+  // ═══════════════════════════════════════════════════════
+  // COUNTER ANIMATION — stats count up
+  // ═══════════════════════════════════════════════════════
+
+  var counters = document.querySelectorAll('.stat-value[data-count]');
+  var countersAnimated = false;
+
+  function animateCounters() {
+    if (countersAnimated) return;
+
+    var statsBar = document.querySelector('.stats-bar');
+    if (!statsBar) return;
+    var rect = statsBar.getBoundingClientRect();
+    if (rect.top > window.innerHeight * 0.8) return;
+
+    countersAnimated = true;
+
+    counters.forEach(function(counter) {
+      var target = parseInt(counter.getAttribute('data-count'), 10);
+      var suffix = counter.getAttribute('data-suffix') || '';
+      var prefix = counter.getAttribute('data-prefix') || '';
+      var duration = 1500;
+      var start = performance.now();
+
+      function step(now) {
+        var elapsed = now - start;
+        var progress = Math.min(elapsed / duration, 1);
+        // ease out cubic
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(eased * target);
+        counter.textContent = prefix + current.toLocaleString() + suffix;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      }
+
+      requestAnimationFrame(step);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // PIPELINE CARD — mouse-follow glow
+  // ═══════════════════════════════════════════════════════
+
+  var pipelineCards = document.querySelectorAll('.pipeline-card');
+
+  pipelineCards.forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      var rect = card.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mouse-x', x + '%');
+      card.style.setProperty('--mouse-y', y + '%');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // MASTER SCROLL HANDLER — single rAF loop
+  // ═══════════════════════════════════════════════════════
+
+  function onScroll() {
+    scrollY = window.scrollY || document.documentElement.scrollTop;
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        updatePlayhead();
+        updateFilmStrip();
+        updateFloatingFrames();
+        animateCounters();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   // ═══════════════════════════════════════════════════════
   // MOBILE NAV
@@ -1848,16 +2433,13 @@ section {
   // ═══════════════════════════════════════════════════════
 
   var nav = document.querySelector('.nav');
-  var lastScroll = 0;
 
   window.addEventListener('scroll', function() {
-    var currentScroll = window.scrollY;
-    if (currentScroll > 100) {
+    if (scrollY > 100) {
       nav.style.borderBottomColor = 'rgba(61, 58, 57, 0.6)';
     } else {
       nav.style.borderBottomColor = 'rgba(61, 58, 57, 0.4)';
     }
-    lastScroll = currentScroll;
   }, { passive: true });
 
 })();
