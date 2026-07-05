@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenMontage — Open-Source Agentic Video Production</title>
+<meta name="description" content="The first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skills. Turn your AI coding assistant into a full video production studio.">
+<meta property="og:title" content="OpenMontage — Open-Source Agentic Video Production">
+<meta property="og:description" content="12 pipelines, 52 tools, 500+ agent skills. Turn your AI coding assistant into a full video production studio.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   OPENMONTAGE — THE TIMELINE
+   Factory design system palette + Geist type
+   ═══════════════════════════════════════════════════════ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Factory palette */
+  --canvas: #101010;
+  --canvas-raised: #161616;
+  --carbon: #1d1a18;
+  --ash: #3d3a39;
+  --graphite: #4d4947;
+  --warm-gray: #8a8380;
+  --pale: #b8b3b0;
+  --bone: #eeeeee;
+  --chalk: #fafafa;
+  --signal: #ee6018;
+  --metric: #a0ca92;
+
+  /* Spacing */
+  --section-gap: 120px;
+  --content-max: 1200px;
+  --card-pad: 24px;
+
+  /* Easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mech: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  font-family: 'Geist', -apple-system, sans-serif;
+  font-weight: 400;
+  background: var(--canvas);
+  color: var(--bone);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--canvas);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PLAYHEAD — the timeline indicator
+   ═══════════════════════════════════════════════════════ */
+
+.playhead {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 0;
+  background: var(--signal);
+  z-index: 100;
+  transition: height 0.1s linear;
+  box-shadow: 0 0 12px rgba(238, 96, 24, 0.4);
+  pointer-events: none;
+}
+
+.playhead-dot {
+  position: fixed;
+  left: -4px;
+  top: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--signal);
+  z-index: 101;
+  transition: top 0.1s linear;
+  box-shadow: 0 0 16px rgba(238, 96, 24, 0.6);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(16, 16, 16, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(61, 58, 57, 0.4);
+  z-index: 90;
+  transition: background 0.3s var(--ease-mech);
+}
+
+.nav-brand {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-brand svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--warm-gray);
+  transition: color 0.2s var(--ease-mech);
+  letter-spacing: 0.01em;
+}
+
+.nav-links a:hover {
+  color: var(--bone);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-ghost {
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--bone);
+  background: transparent;
+  border: 1px solid var(--ash);
+  border-radius: 3px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-mech);
+}
+
+.btn-ghost:hover {
+  border-color: var(--pale);
+  color: var(--chalk);
+}
+
+.btn-filled {
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--canvas);
+  background: var(--chalk);
+  border: none;
+  border-radius: 3px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-mech);
+}
+
+.btn-filled:hover {
+  background: var(--bone);
+}
+
+.nav-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--bone);
+  cursor: pointer;
+  padding: 8px;
+}
+
+.nav-mobile-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════ */
+
+.hero {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: 120px 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--signal);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--bone);
+  margin-bottom: 24px;
+  text-wrap: balance;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--signal);
+}
+
+.hero-sub {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--warm-gray);
+  max-width: 50ch;
+  margin-bottom: 40px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-actions .btn-primary {
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--canvas);
+  background: var(--chalk);
+  border: none;
+  border-radius: 3px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-mech);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-actions .btn-primary:hover {
+  background: var(--bone);
+  transform: translateY(-1px);
+}
+
+.hero-actions .btn-primary:active {
+  transform: scale(0.98);
+}
+
+.hero-actions .btn-secondary {
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--bone);
+  background: transparent;
+  border: 1px solid var(--ash);
+  border-radius: 3px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-mech);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-actions .btn-secondary:hover {
+  border-color: var(--pale);
+  color: var(--chalk);
+}
+
+.hero-visual {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-terminal {
+  background: var(--canvas-raised);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: 'Geist Mono', monospace;
+}
+
+.terminal-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(29, 26, 24, 0.6);
+  border-bottom: 1px solid rgba(61, 58, 57, 0.4);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: #ff5f57; }
+.terminal-dot.yellow { background: #febc2e; }
+.terminal-dot.green { background: #28c840; }
+
+.terminal-title {
+  font-size: 12px;
+  color: var(--warm-gray);
+  margin-left: 8px;
+}
+
+.terminal-body {
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--pale);
+  min-height: 220px;
+}
+
+.terminal-body .prompt {
+  color: var(--metric);
+}
+
+.terminal-body .cmd {
+  color: var(--bone);
+}
+
+.terminal-body .output {
+  color: var(--warm-gray);
+}
+
+.terminal-body .accent {
+  color: var(--signal);
+}
+
+.terminal-body .cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--signal);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATS BAR
+   ═══════════════════════════════════════════════════════ */
+
+.stats-bar {
+  border-top: 1px solid var(--ash);
+  border-bottom: 1px solid var(--ash);
+  padding: 40px;
+}
+
+.stats-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-value .accent {
+  color: var(--signal);
+}
+
+.stat-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--warm-gray);
+  margin-top: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTIONS — shared
+   ═══════════════════════════════════════════════════════ */
+
+section {
+  padding: var(--section-gap) 40px;
+}
+
+.section-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 64px;
+}
+
+.section-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--signal);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--signal);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: var(--warm-gray);
+  max-width: 55ch;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PIPELINES — timeline tracks
+   ═══════════════════════════════════════════════════════ */
+
+.pipelines-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--ash);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pipeline-card {
+  background: var(--canvas);
+  padding: 32px;
+  position: relative;
+  transition: background 0.3s var(--ease-mech);
+  cursor: default;
+}
+
+.pipeline-card:hover {
+  background: var(--canvas-raised);
+}
+
+.pipeline-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 0;
+  background: var(--signal);
+  transition: height 0.4s var(--ease-out);
+}
+
+.pipeline-card:hover::before {
+  height: 100%;
+}
+
+.pipeline-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--graphite);
+  margin-bottom: 16px;
+}
+
+.pipeline-name {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--bone);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.pipeline-desc {
+  font-size: 14px;
+  color: var(--warm-gray);
+  line-height: 1.5;
+}
+
+.pipeline-tag {
+  display: inline-block;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--metric);
+  background: rgba(160, 202, 146, 0.08);
+  border: 1px solid rgba(160, 202, 146, 0.15);
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin-top: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HOW IT WORKS — production flow
+   ═══════════════════════════════════════════════════════ */
+
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ash);
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 24px;
+  padding: 32px 0;
+  position: relative;
+}
+
+.flow-step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--canvas);
+  border: 1px solid var(--ash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  color: var(--signal);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s var(--ease-mech);
+}
+
+.flow-step:hover .flow-step-num {
+  background: var(--signal);
+  color: var(--canvas);
+  border-color: var(--signal);
+}
+
+.flow-step-content h3 {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--bone);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.flow-step-content p {
+  font-size: 15px;
+  color: var(--warm-gray);
+  line-height: 1.6;
+  max-width: 55ch;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DEMO VIDEOS — filmstrip
+   ═══════════════════════════════════════════════════════ */
+
+.demos-scroll {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ash) transparent;
+}
+
+.demos-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.demos-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.demos-scroll::-webkit-scrollbar-thumb {
+  background: var(--ash);
+  border-radius: 2px;
+}
+
+.demo-card {
+  flex: 0 0 380px;
+  scroll-snap-align: start;
+  background: var(--canvas-raised);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.3s var(--ease-mech);
+}
+
+.demo-card:hover {
+  border-color: var(--graphite);
+}
+
+.demo-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--carbon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-thumb::after {
+  content: '▶';
+  font-size: 32px;
+  color: var(--bone);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-mech);
+}
+
+.demo-card:hover .demo-thumb::after {
+  opacity: 0.8;
+}
+
+.demo-thumb .demo-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--chalk);
+  background: rgba(16, 16, 16, 0.8);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+
+.demo-info {
+  padding: 20px;
+}
+
+.demo-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--bone);
+  margin-bottom: 6px;
+}
+
+.demo-meta {
+  font-size: 13px;
+  color: var(--warm-gray);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.demo-cost {
+  font-family: 'Geist Mono', monospace;
+  color: var(--metric);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROVIDERS
+   ═══════════════════════════════════════════════════════ */
+
+.providers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--ash);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.provider-col {
+  background: var(--canvas);
+  padding: 32px;
+}
+
+.provider-col-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--signal);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ash);
+}
+
+.provider-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.provider-list li {
+  font-size: 14px;
+  color: var(--pale);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.provider-list li::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--graphite);
+  flex-shrink: 0;
+}
+
+.provider-list li .free {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--metric);
+  background: rgba(160, 202, 146, 0.08);
+  border: 1px solid rgba(160, 202, 146, 0.15);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUICK START — terminal
+   ═══════════════════════════════════════════════════════ */
+
+.quickstart-terminal {
+  background: var(--canvas-raised);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 720px;
+}
+
+.qs-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(29, 26, 24, 0.6);
+  border-bottom: 1px solid rgba(61, 58, 57, 0.4);
+}
+
+.qs-body {
+  padding: 24px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.qs-body .comment {
+  color: var(--graphite);
+}
+
+.qs-body .command {
+  color: var(--bone);
+}
+
+.qs-body .output {
+  color: var(--warm-gray);
+}
+
+.qs-copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--warm-gray);
+  background: var(--canvas);
+  border: 1px solid var(--ash);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-mech);
+}
+
+.qs-copy-btn:hover {
+  color: var(--bone);
+  border-color: var(--pale);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CTA SECTION
+   ═══════════════════════════════════════════════════════ */
+
+.cta-section {
+  text-align: center;
+  padding: var(--section-gap) 40px;
+}
+
+.cta-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--canvas-raised);
+  border: 1px solid var(--ash);
+  border-radius: 10px;
+  padding: 64px 48px;
+}
+
+.cta-card h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.cta-card p {
+  font-size: 16px;
+  color: var(--warm-gray);
+  margin-bottom: 32px;
+  max-width: 45ch;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════ */
+
+.footer {
+  border-top: 1px solid var(--ash);
+  padding: 64px 40px 40px;
+}
+
+.footer-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+
+.footer-brand {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone);
+  margin-bottom: 16px;
+}
+
+.footer-desc {
+  font-size: 14px;
+  color: var(--warm-gray);
+  line-height: 1.6;
+  max-width: 32ch;
+}
+
+.footer-col-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--pale);
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-links a {
+  font-size: 14px;
+  color: var(--warm-gray);
+  transition: color 0.2s var(--ease-mech);
+}
+
+.footer-links a:hover {
+  color: var(--bone);
+}
+
+.footer-bottom {
+  max-width: var(--content-max);
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(61, 58, 57, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-copy {
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.footer-copy a {
+  color: var(--warm-gray);
+}
+
+.footer-license {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--graphite);
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DEMO BADGE
+   ═══════════════════════════════════════════════════════ */
+
+.demo-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(16, 16, 16, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--ash);
+  border-radius: 8px;
+  padding: 12px 16px;
+  z-index: 80;
+  max-width: 280px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s var(--ease-out);
+}
+
+.demo-badge.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.demo-badge-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--signal);
+  margin-bottom: 4px;
+}
+
+.demo-badge-text {
+  font-size: 12px;
+  color: var(--warm-gray);
+  line-height: 1.4;
+}
+
+.demo-badge-text a {
+  color: var(--bone);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ═══════════════════════════════════════════════════════ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .hero-visual {
+    max-width: 560px;
+  }
+
+  .pipelines-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-mobile-toggle {
+    display: block;
+  }
+
+  .nav {
+    padding: 0 20px;
+  }
+
+  section {
+    padding: 80px 20px;
+  }
+
+  .hero {
+    padding: 100px 20px 60px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .pipelines-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .providers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-step {
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+  }
+
+  .flow-step-num {
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+  }
+
+  .flow-steps::before {
+    left: 19px;
+  }
+
+  .demo-card {
+    flex: 0 0 300px;
+  }
+
+  .cta-card {
+    padding: 40px 24px;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .playhead, .playhead-dot {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+  }
+
+  .demo-card {
+    flex: 0 0 280px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE NAV OVERLAY
+   ═══════════════════════════════════════════════════════ */
+
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 16, 16, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-mech);
+}
+
+.mobile-nav.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav a {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--bone);
+  transition: color 0.2s var(--ease-mech);
+}
+
+.mobile-nav a:hover {
+  color: var(--signal);
+}
+
+.mobile-nav-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--bone);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .playhead, .playhead-dot {
+    display: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- PLAYHEAD -->
+<div class="playhead" id="playhead"></div>
+<div class="playhead-dot" id="playhead-dot"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"/>
+    </svg>
+    OpenMontage
+  </a>
+  <ul class="nav-links">
+    <li><a href="#pipelines">Pipelines</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#demos">Demos</a></li>
+    <li><a href="#providers">Providers</a></li>
+    <li><a href="#quickstart">Quick Start</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/calesthio/OpenMontage" target="_blank" rel="noopener noreferrer" class="btn-ghost">GitHub</a>
+    <a href="#quickstart" class="btn-filled">Get Started</a>
+  </div>
+  <button class="nav-mobile-toggle" id="mobile-toggle" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-close" id="mobile-close" aria-label="Close menu">&times;</button>
+  <a href="#pipelines" class="mobile-nav-link">Pipelines</a>
+  <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+  <a href="#demos" class="mobile-nav-link">Demos</a>
+  <a href="#providers" class="mobile-nav-link">Providers</a>
+  <a href="#quickstart" class="mobile-nav-link">Quick Start</a>
+  <a href="https://github.com/calesthio/OpenMontage" target="_blank" rel="noopener noreferrer">GitHub</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">Open Source &middot; AGPL-3.0</div>
+      <h1>Turn your AI assistant into a <em>video production studio</em></h1>
+      <p class="hero-sub">12 pipelines. 52 tools. 500+ agent skills. Describe what you want in plain language — your agent handles research, scripting, asset generation, editing, and final composition.</p>
+      <div class="hero-actions">
+        <a href="#quickstart" class="btn-primary">
+          Quick Start
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="https://github.com/calesthio/OpenMontage" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-terminal">
+        <div class="terminal-chrome">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <span class="terminal-title">terminal — openmontage</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="prompt">$</span> <span class="cmd">git clone https://github.com/calesthio/OpenMontage.git</span></div>
+          <div><span class="prompt">$</span> <span class="cmd">cd OpenMontage && make setup</span></div>
+          <div class="output">✓ Python venv created</div>
+          <div class="output">✓ Dependencies installed</div>
+          <div class="output">✓ Remotion composer ready</div>
+          <div class="output">✓ Piper TTS configured</div>
+          <div>&nbsp;</div>
+          <div><span class="prompt">$</span> <span class="cmd">open in your AI assistant and say:</span></div>
+          <div>&nbsp;</div>
+          <div><span class="accent">"Make a 60-second animated explainer</span></div>
+          <div><span class="accent"> about how neural networks learn"</span></div>
+          <div>&nbsp;</div>
+          <div class="output">→ Agent researching topic...</div>
+          <div class="output">→ Script drafted, awaiting approval</div>
+          <div class="output">→ Assets generating (3 scenes)...</div>
+          <div class="output">→ <span class="accent">Render complete ✓</span></div>
+          <div><span class="cursor"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat reveal">
+      <div class="stat-value">33.4k<span class="accent">+</span></div>
+      <div class="stat-label">GitHub Stars</div>
+    </div>
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-value">12</div>
+      <div class="stat-label">Pipelines</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-value">52</div>
+      <div class="stat-label">Production Tools</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-value">500<span class="accent">+</span></div>
+      <div class="stat-label">Agent Skills</div>
+    </div>
+  </div>
+</div>
+
+<!-- PIPELINES -->
+<section id="pipelines">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Pipelines</div>
+      <h2 class="section-title">12 production pipelines.<br>One prompt.</h2>
+      <p class="section-desc">Each pipeline is a complete production workflow, from idea to finished video. Pick one. Your agent does the rest.</p>
+    </div>
+    <div class="pipelines-grid">
+      <div class="pipeline-card reveal">
+        <div class="pipeline-num">01</div>
+        <div class="pipeline-name">Animated Explainer</div>
+        <div class="pipeline-desc">AI-generated explainer with research, narration, visuals, and music. Educational content, tutorials, topic breakdowns.</div>
+        <div class="pipeline-tag">Popular</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-1">
+        <div class="pipeline-num">02</div>
+        <div class="pipeline-name">Animation</div>
+        <div class="pipeline-desc">Motion graphics, kinetic typography, animated sequences. Social media, product demos, abstract concepts.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-2">
+        <div class="pipeline-num">03</div>
+        <div class="pipeline-name">Cinematic</div>
+        <div class="pipeline-desc">Trailer, teaser, and mood-driven edits. Brand films, teasers, promotional content.</div>
+      </div>
+      <div class="pipeline-card reveal">
+        <div class="pipeline-num">04</div>
+        <div class="pipeline-name">Documentary Montage</div>
+        <div class="pipeline-desc">Thematic montage from a CLIP-indexed corpus of free stock footage and open archives. Real-footage video without paid APIs.</div>
+        <div class="pipeline-tag">Free</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-1">
+        <div class="pipeline-num">05</div>
+        <div class="pipeline-name">Talking Head</div>
+        <div class="pipeline-desc">Footage-led speaker videos. Presentations, vlogs, interviews with AI avatar support.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-2">
+        <div class="pipeline-num">06</div>
+        <div class="pipeline-name">Clip Factory</div>
+        <div class="pipeline-desc">Batch of ranked short-form clips from one long source. Repurposing long content for social media.</div>
+      </div>
+      <div class="pipeline-card reveal">
+        <div class="pipeline-num">07</div>
+        <div class="pipeline-name">Hybrid</div>
+        <div class="pipeline-desc">Source footage enhanced with AI-generated support visuals. Best of both worlds.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-1">
+        <div class="pipeline-num">08</div>
+        <div class="pipeline-name">Localization & Dub</div>
+        <div class="pipeline-desc">Subtitle, dub, and translate existing video. Multi-language distribution across 50+ languages.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-2">
+        <div class="pipeline-num">09</div>
+        <div class="pipeline-name">Podcast Repurpose</div>
+        <div class="pipeline-desc">Podcast highlights to video. Audiogram videos, clip extraction, social-ready snippets.</div>
+      </div>
+      <div class="pipeline-card reveal">
+        <div class="pipeline-num">10</div>
+        <div class="pipeline-name">Screen Demo</div>
+        <div class="pipeline-desc">Polished software screen recordings and walkthroughs. Product demos, tutorials, documentation.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-1">
+        <div class="pipeline-num">11</div>
+        <div class="pipeline-name">Avatar Spokesperson</div>
+        <div class="pipeline-desc">Avatar-driven presenter videos. Corporate comms, training, announcements.</div>
+      </div>
+      <div class="pipeline-card reveal reveal-delay-2">
+        <div class="pipeline-num">12</div>
+        <div class="pipeline-name">Character Animation</div>
+        <div class="pipeline-desc">SVG rigs, pose libraries, GSAP timelines. Cartoon character acting via HyperFrames.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" style="background: var(--canvas-raised);">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">How It Works</div>
+      <h2 class="section-title">Your agent is the director.</h2>
+      <p class="section-desc">No code orchestrator. Your AI coding assistant reads pipeline manifests, calls Python tools, self-reviews, and renders the final video. You stay in control at every creative decision.</p>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step reveal">
+        <div class="flow-step-num">01</div>
+        <div class="flow-step-content">
+          <h3>Research</h3>
+          <p>Before writing a single word, the agent searches YouTube, Reddit, Hacker News, news sites, and academic sources. It gathers data points, audience questions, trending angles, and visual references.</p>
+        </div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">02</div>
+        <div class="flow-step-content">
+          <h3>Proposal</h3>
+          <p>You get 2-3 differentiated concepts with honest tool paths, cost estimates, and a sample before full production starts. Pick one. The agent locks it in.</p>
+        </div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">03</div>
+        <div class="flow-step-content">
+          <h3>Script & Scene Plan</h3>
+          <p>The agent writes the script with voice direction, plans every scene, and maps assets to providers. Every creative decision gets your approval via the Backlot storyboard.</p>
+        </div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">04</div>
+        <div class="flow-step-content">
+          <h3>Asset Generation</h3>
+          <p>Images, video clips, narration, music — all generated or sourced automatically. The scored provider selection ranks every tool across 7 dimensions and picks the best match.</p>
+        </div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">05</div>
+        <div class="flow-step-content">
+          <h3>Compose & Render</h3>
+          <p>Remotion or HyperFrames assembles everything into a finished video. Post-render self-review catches issues before you see the output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMOS -->
+<section id="demos">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Watch It Happen</div>
+      <h2 class="section-title">Made with OpenMontage.</h2>
+      <p class="section-desc">Every video includes the full prompt, pipeline, tools used, and cost so you can reproduce it yourself.</p>
+    </div>
+    <div class="demos-scroll">
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #1a0a2e 0%, #0a0a1a 100%);">
+          <span class="demo-label">Sci-Fi Trailer</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">Signal From Tomorrow</div>
+          <div class="demo-meta">
+            <span>Cinematic pipeline</span>
+            <span class="demo-cost">~$1.50</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #2a1a00 0%, #0a0a0a 100%);">
+          <span class="demo-label">Animated Short</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">The Last Banana</div>
+          <div class="demo-meta">
+            <span>Animation pipeline</span>
+            <span class="demo-cost">$1.33</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #1a0f00 0%, #0a0a0a 100%);">
+          <span class="demo-label">History Elegy</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">The Library at Alexandria</div>
+          <div class="demo-meta">
+            <span>Bespoke composition</span>
+            <span class="demo-cost">$0.02</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #0a1a2e 0%, #0a0a0a 100%);">
+          <span class="demo-label">Product Ad</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">VOID — Neural Interface</div>
+          <div class="demo-meta">
+            <span>Animation pipeline</span>
+            <span class="demo-cost">$0.69</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #1a0a1a 0%, #0a0a0a 100%);">
+          <span class="demo-label">Anime Style</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">Afternoon in Candyland</div>
+          <div class="demo-meta">
+            <span>Animation pipeline</span>
+            <span class="demo-cost">$0.15</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-thumb" style="background: linear-gradient(135deg, #0a1a0a 0%, #0a0a0a 100%);">
+          <span class="demo-label">Forest Spirit</span>
+        </div>
+        <div class="demo-info">
+          <div class="demo-title">Mori no Seishin</div>
+          <div class="demo-meta">
+            <span>Animation pipeline</span>
+            <span class="demo-cost">$0.15</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROVIDERS -->
+<section id="providers" style="background: var(--canvas-raised);">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Providers</div>
+      <h2 class="section-title">Use what you have.<br>Swap freely.</h2>
+      <p class="section-desc">Every capability supports open-source local alternatives alongside premium APIs. Zero vendor lock-in. The scored selector picks the best match automatically.</p>
+    </div>
+    <div class="providers-grid">
+      <div class="provider-col reveal">
+        <div class="provider-col-title">Video Generation — 14 providers</div>
+        <ul class="provider-list">
+          <li>Kling</li>
+          <li>Runway Gen-4</li>
+          <li>Google Veo 3</li>
+          <li>Grok Imagine Video</li>
+          <li>Higgsfield</li>
+          <li>MiniMax</li>
+          <li>HeyGen</li>
+          <li>WAN 2.1 <span class="free">Free / Local</span></li>
+          <li>Hunyuan <span class="free">Free / Local</span></li>
+          <li>CogVideo <span class="free">Free / Local</span></li>
+          <li>LTX-Video <span class="free">Free / Local</span></li>
+          <li>Pexels <span class="free">Free Stock</span></li>
+          <li>Pixabay <span class="free">Free Stock</span></li>
+          <li>Wikimedia <span class="free">Free / Open</span></li>
+        </ul>
+      </div>
+      <div class="provider-col reveal reveal-delay-1">
+        <div class="provider-col-title">Image · TTS · Music</div>
+        <ul class="provider-list">
+          <li>FLUX</li>
+          <li>Google Imagen</li>
+          <li>GPT Image 2</li>
+          <li>Recraft</li>
+          <li>Local Diffusion <span class="free">Free / Local</span></li>
+          <li style="margin-top: 16px;">ElevenLabs TTS</li>
+          <li>Google TTS (700+ voices)</li>
+          <li>OpenAI TTS</li>
+          <li>Piper <span class="free">Free / Offline</span></li>
+          <li style="margin-top: 16px;">Suno AI (full songs)</li>
+          <li>ElevenLabs Music</li>
+          <li>ElevenLabs SFX</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section id="quickstart">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Quick Start</div>
+      <h2 class="section-title">Up and running in 3 commands.</h2>
+      <p class="section-desc">Python 3.10+, FFmpeg, Node.js 18+, and an AI coding assistant. That's it.</p>
+    </div>
+    <div class="quickstart-terminal reveal" style="position: relative;">
+      <button class="qs-copy-btn" onclick="navigator.clipboard.writeText('git clone https://github.com/calesthio/OpenMontage.git\ncd OpenMontage\nmake setup').then(()=>this.textContent='Copied!')">Copy</button>
+      <div class="qs-chrome">
+        <div class="terminal-dot red"></div>
+        <div class="terminal-dot yellow"></div>
+        <div class="terminal-dot green"></div>
+        <span class="terminal-title">terminal</span>
+      </div>
+      <div class="qs-body">
+        <div><span class="comment"># Clone and install</span></div>
+        <div><span class="command">git clone https://github.com/calesthio/OpenMontage.git</span></div>
+        <div><span class="command">cd OpenMontage</span></div>
+        <div><span class="command">make setup</span></div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Open in your AI coding assistant and say:</span></div>
+        <div><span class="command" style="color: var(--signal);">"Make a 60-second animated explainer about how neural networks learn"</span></div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Or with zero API keys — free real-footage documentary:</span></div>
+        <div><span class="command" style="color: var(--metric);">"Make a 90-second documentary about city life at 4am. Real footage only."</span></div>
+      </div>
+    </div>
+    <div style="margin-top: 32px;" class="reveal">
+      <p style="font-size: 14px; color: var(--warm-gray);">Works with <strong style="color: var(--pale);">Claude Code</strong>, <strong style="color: var(--pale);">Cursor</strong>, <strong style="color: var(--pale);">Copilot</strong>, <strong style="color: var(--pale);">Windsurf</strong>, and <strong style="color: var(--pale);">Codex</strong> — any AI coding assistant that can read files and run code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-card reveal">
+    <h2>Start producing.</h2>
+    <p>Open-source. Free to start. No vendor lock-in. Your agent handles the production — you handle the vision.</p>
+    <div class="cta-actions">
+      <a href="https://github.com/calesthio/OpenMontage" target="_blank" rel="noopener noreferrer" class="btn-primary">
+        View on GitHub
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </a>
+      <a href="https://github.com/calesthio/OpenMontage/discussions" target="_blank" rel="noopener noreferrer" class="btn-secondary">Join Discussions</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">OpenMontage</div>
+      <p class="footer-desc">The first open-source, agentic video production system. Built by the community, for the community.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-links">
+        <li><a href="#pipelines">Pipelines</a></li>
+        <li><a href="#providers">Providers</a></li>
+        <li><a href="#demos">Demos</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Resources</div>
+      <ul class="footer-links">
+        <li><a href="https://github.com/calesthio/OpenMontage/blob/main/AGENT_GUIDE.md" target="_blank" rel="noopener noreferrer">Agent Guide</a></li>
+        <li><a href="https://github.com/calesthio/OpenMontage/blob/main/PROMPT_GALLERY.md" target="_blank" rel="noopener noreferrer">Prompt Gallery</a></li>
+        <li><a href="https://github.com/calesthio/OpenMontage/blob/main/docs/PROVIDERS.md" target="_blank" rel="noopener noreferrer">Provider Docs</a></li>
+        <li><a href="https://github.com/calesthio/OpenMontage/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Community</div>
+      <ul class="footer-links">
+        <li><a href="https://github.com/calesthio/OpenMontage" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.youtube.com/@OpenMontage" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+        <li><a href="https://x.com/calesthioailabs" target="_blank" rel="noopener noreferrer">X / Twitter</a></li>
+        <li><a href="https://github.com/calesthio/OpenMontage/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">&copy; 2026 <a href="https://github.com/calesthio" target="_blank" rel="noopener noreferrer">calesthio</a>. Open-source under AGPL-3.0.</div>
+    <div class="footer-license">AGPL-3.0</div>
+  </div>
+</footer>
+
+<!-- DEMO BADGE -->
+<div class="demo-badge" id="demo-badge">
+  <div class="demo-badge-label">Concept Site</div>
+  <div class="demo-badge-text">Built by <a href="#">BLOK. WebDev Studio</a> as a concept demo for OpenMontage.</div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ═══════════════════════════════════════════════════════
+  // PLAYHEAD — tracks scroll position
+  // ═══════════════════════════════════════════════════════
+
+  var playhead = document.getElementById('playhead');
+  var playheadDot = document.getElementById('playhead-dot');
+
+  function updatePlayhead() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = docHeight > 0 ? scrollTop / docHeight : 0;
+    var viewportH = window.innerHeight;
+
+    playhead.style.height = (progress * viewportH) + 'px';
+    playheadDot.style.top = (progress * viewportH - 5) + 'px';
+  }
+
+  window.addEventListener('scroll', updatePlayhead, { passive: true });
+  updatePlayhead();
+
+  // ═══════════════════════════════════════════════════════
+  // SCROLL REVEAL
+  // ═══════════════════════════════════════════════════════
+
+  var reveals = document.querySelectorAll('.reveal');
+
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  reveals.forEach(function(el) {
+    revealObserver.observe(el);
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // MOBILE NAV
+  // ═══════════════════════════════════════════════════════
+
+  var mobileToggle = document.getElementById('mobile-toggle');
+  var mobileNav = document.getElementById('mobile-nav');
+  var mobileClose = document.getElementById('mobile-close');
+  var mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+  mobileToggle.addEventListener('click', function() {
+    mobileNav.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+
+  mobileClose.addEventListener('click', function() {
+    mobileNav.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  mobileLinks.forEach(function(link) {
+    link.addEventListener('click', function() {
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // DEMO BADGE — iframe detection
+  // ═══════════════════════════════════════════════════════
+
+  var params = new URLSearchParams(window.location.search);
+  var inIframe = params.has('embed');
+  if (!inIframe) {
+    try { inIframe = window.self !== window.top; }
+    catch(e) { inIframe = true; }
+  }
+
+  if (inIframe) {
+    var badge = document.getElementById('demo-badge');
+    if (badge) badge.remove();
+  } else {
+    setTimeout(function() {
+      var badge = document.getElementById('demo-badge');
+      if (badge) badge.classList.add('visible');
+    }, 1200);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // NAV SCROLL EFFECT
+  // ═══════════════════════════════════════════════════════
+
+  var nav = document.querySelector('.nav');
+  var lastScroll = 0;
+
+  window.addEventListener('scroll', function() {
+    var currentScroll = window.scrollY;
+    if (currentScroll > 100) {
+      nav.style.borderBottomColor = 'rgba(61, 58, 57, 0.6)';
+    } else {
+      nav.style.borderBottomColor = 'rgba(61, 58, 57, 0.4)';
+    }
+    lastScroll = currentScroll;
+  }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>
